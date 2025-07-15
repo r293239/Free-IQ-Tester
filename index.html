@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IQ Test - Cognitive Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 800px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .start-screen {
+            text-align: center;
+        }
+
+        .start-screen h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .question-container {
+            display: none;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .question-counter {
+            background: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .timer {
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+        }
+
+        .question {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .question h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+        }
+
+        .question-type {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+            max-width: 300px;
+        }
+
+        .pattern-cell {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .pattern-cell.missing {
+            background: #f0f0f0;
+            border-style: dashed;
+        }
+
+        .options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+            text-align: center;
+        }
+
+        .option:hover {
+            border-color: #4CAF50;
+            background: #f1f8e9;
+        }
+
+        .option.selected {
+            border-color: #4CAF50;
+            background: #e8f5e8;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results {
+            display: none;
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #4CAF50 0%, #45a049 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .score-inner {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-number {
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .score-label {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 10px;
+        }
+
+        .score-interpretation {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .breakdown-item {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .breakdown-item h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .breakdown-score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .math-problem {
+            font-size: 1.5em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #eee;
+        }
+
+        .analogy {
+            font-size: 1.2em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border: 2px solid #eee;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 IQ Assessment</h1>
+            <p>Comprehensive Cognitive Ability Test</p>
+        </div>
+
+        <div class="content">
+            <div class="start-screen" id="startScreen">
+                <h2>Welcome to the IQ Test</h2>
+                <p>This comprehensive assessment evaluates multiple cognitive domains including logical reasoning, pattern recognition, mathematical ability, verbal comprehension, and spatial visualization.</p>
+                <p><strong>Instructions:</strong></p>
+                <ul style="text-align: left; max-width: 500px; margin: 20px auto;">
+                    <li>Answer all questions to the best of your ability</li>
+                    <li>Each question has a time limit</li>
+                    <li>Choose the most logical answer</li>
+                    <li>Your final score will be calculated based on accuracy and speed</li>
+                </ul>
+                <p style="color: #666; font-size: 0.9em; margin-top: 20px;">
+                    <em>Note: This is an educational assessment tool. For clinical purposes, consult a qualified psychologist.</em>
+                </p>
+                <button class="btn" onclick="startTest()">Begin Assessment</button>
+            </div>
+
+            <div class="question-container" id="questionContainer">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="question-header">
+                    <div class="question-counter" id="questionCounter">Question 1 of 20</div>
+                    <div class="timer" id="timer">Time: 60s</div>
+                </div>
+                <div class="question" id="questionContent">
+                    <!-- Questions will be populated here -->
+                </div>
+                <div class="options" id="optionsContainer">
+                    <!-- Options will be populated here -->
+                </div>
+                <button class="btn" id="nextBtn" onclick="nextQuestion()" disabled>Next Question</button>
+            </div>
+
+            <div class="results" id="results">
+                <h2>Your IQ Assessment Results</h2>
+                <div class="score-circle">
+                    <div class="score-inner">
+                        <div class="score-number" id="finalScore">0</div>
+                        <div class="score-label">IQ Score</div>
+                    </div>
+                </div>
+                <div class="score-interpretation" id="interpretation">
+                    <!-- Interpretation will be populated here -->
+                </div>
+                <div class="breakdown" id="breakdown">
+                    <!-- Breakdown will be populated here -->
+                </div>
+                <button class="btn" onclick="resetTest()">Take Test Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 60;
+        let timer;
+        let answers = [];
+        let startTime;
+        let domainScores = {
+            logical: { correct: 0, total: 0 },
+            mathematical: { correct: 0, total: 0 },
+            verbal: { correct: 0, total: 0 },
+            spatial: { correct: 0, total: 0 },
+            pattern: { correct: 0, total: 0 }
+        };
+
+        const questions = [
+            {
+                type: "logical",
+                question: "If all roses are flowers and some flowers are red, which statement is definitely true?",
+                options: [
+                    "All roses are red",
+                    "Some roses might be red",
+                    "No roses are red",
+                    "All red things are roses"
+                ],
+                correct: 1,
+                time: 45
+            },
+            {
+                type: "pattern",
+                question: "What comes next in this sequence: 2, 6, 18, 54, ?",
+                options: ["108", "162", "216", "324"],
+                correct: 1,
+                time: 60
+            },
+            {
+                type: "mathematical",
+                question: "If x + 3 = 2x - 5, what is the value of x?",
+                options: ["2", "4", "6", "8"],
+                correct: 3,
+                time: 90
+            },
+            {
+                type: "verbal",
+                question: "METICULOUS is to CARELESS as GENEROUS is to:",
+                options: ["Wealthy", "Selfish", "Kind", "Charitable"],
+                correct: 1,
+                time: 45
+            },
+            {
+                type: "spatial",
+                question: "How many cubes are in this 3D structure? (Imagine a 3×3×3 cube with the center cube removed)",
+                options: ["24", "25", "26", "27"],
+                correct: 2,
+                time: 75
+            },
+            {
+                type: "logical",
+                question: "In a family of 6 people, each person shakes hands with every other person exactly once. How many handshakes occur?",
+                options: ["12", "15", "18", "21"],
+                correct: 1,
+                time: 60
+            },
+            {
+                type: "pattern",
+                question: "Complete the pattern: ○●○●○●○_",
+                options: ["○", "●", "○●", "●○"],
+                correct: 1,
+                time: 30
+            },
+            {
+                type: "mathematical",
+                question: "What is 15% of 240?",
+                options: ["32", "36", "40", "44"],
+                correct: 1,
+                time: 45
+            },
+            {
+                type: "verbal",
+                question: "Which word does NOT belong with the others?",
+                options: ["Manuscript", "Biography", "Novel", "Poem"],
+                correct: 1,
+                time: 40
+            },
+            {
+                type: "spatial",
+                question: "If you fold a square piece of paper in half twice and cut a triangle from one corner, how many holes will there be when unfolded?",
+                options: ["2", "4", "6", "8"],
+                correct: 1,
+                time: 60
+            },
+            {
+                type: "logical",
+                question: "All cats are mammals. Some mammals are dogs. Therefore:",
+                options: [
+                    "All cats are dogs",
+                    "Some cats are dogs", 
+                    "No cats are dogs",
+                    "Cannot be determined"
+                ],
+                correct: 3,
+                time: 45
+            },
+            {
+                type: "pattern",
+                question: "What number should replace the question mark? 1, 4, 9, 16, 25, ?",
+                options: ["30", "32", "36", "40"],
+                correct: 2,
+                time: 40
+            },
+            {
+                type: "mathematical",
+                question: "A train travels 300 miles in 4 hours. What is its average speed in miles per hour?",
+                options: ["65", "70", "75", "80"],
+                correct: 2,
+                time: 45
+            },
+            {
+                type: "verbal",
+                question: "ABUNDANT is to SCARCE as ANCIENT is to:",
+                options: ["Old", "Modern", "Historic", "Vintage"],
+                correct: 1,
+                time: 40
+            },
+            {
+                type: "spatial",
+                question: "Which 3D shape has exactly 8 vertices?",
+                options: ["Pyramid", "Cube", "Cylinder", "Sphere"],
+                correct: 1,
+                time: 35
+            },
+            {
+                type: "logical",
+                question: "If it takes 5 machines 5 minutes to make 5 widgets, how long would it take 100 machines to make 100 widgets?",
+                options: ["5 minutes", "20 minutes", "100 minutes", "500 minutes"],
+                correct: 0,
+                time: 75
+            },
+            {
+                type: "pattern",
+                question: "What comes next? A, D, G, J, ?",
+                options: ["K", "L", "M", "N"],
+                correct: 2,
+                time: 35
+            },
+            {
+                type: "mathematical",
+                question: "If 2x + 3y = 12 and x = 3, what is y?",
+                options: ["1", "2", "3", "4"],
+                correct: 1,
+                time: 60
+            },
+            {
+                type: "verbal",
+                question: "Choose the word that best completes the analogy: BOOK is to CHAPTER as SYMPHONY is to:",
+                options: ["Orchestra", "Movement", "Music", "Composer"],
+                correct: 1,
+                time: 45
+            },
+            {
+                type: "spatial",
+                question: "A cube is painted red on all faces and then cut into 27 smaller cubes. How many small cubes have exactly 2 red faces?",
+                options: ["8", "12", "16", "20"],
+                correct: 1,
+                time: 90
+            }
+        ];
+
+        function startTest() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('questionContainer').style.display = 'block';
+            startTime = Date.now();
+            showQuestion();
+        }
+
+        function showQuestion() {
+            if (currentQuestion >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const question = questions[currentQuestion];
+            timeLeft = question.time;
+            
+            updateProgressBar();
+            updateQuestionCounter();
+            updateTimer();
+            
+            const questionContent = document.getElementById('questionContent');
+            questionContent.innerHTML = `
+                <div class="question-type">${question.type.charAt(0).toUpperCase() + question.type.slice(1)} Reasoning</div>
+                <h3>${question.question}</h3>
+            `;
+
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            question.options.forEach((option, index) => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'option';
+                optionElement.textContent = option;
+                optionElement.onclick = () => selectOption(index);
+                optionsContainer.appendChild(optionElement);
+            });
+
+            document.getElementById('nextBtn').disabled = true;
+            startTimer();
+        }
+
+        function selectOption(index) {
+            const options = document.querySelectorAll('.option');
+            options.forEach(option => option.classList.remove('selected'));
+            options[index].classList.add('selected');
+            
+            answers[currentQuestion] = index;
+            document.getElementById('nextBtn').disabled = false;
+        }
+
+        function nextQuestion() {
+            clearInterval(timer);
+            
+            const question = questions[currentQuestion];
+            const selectedAnswer = answers[currentQuestion];
+            const isCorrect = selectedAnswer === question.correct;
+            
+            // Update domain scores
+            domainScores[question.type].total++;
+            if (isCorrect) {
+                domainScores[question.type].correct++;
+                // Bonus points for speed
+                const timeBonus = Math.max(0, timeLeft / question.time);
+                score += 5 + (timeBonus * 2);
+            }
+            
+            currentQuestion++;
+            showQuestion();
+        }
+
+        function startTimer() {
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    answers[currentQuestion] = -1; // No answer selected
+                    nextQuestion();
+                }
+            }, 1000);
+        }
+
+        function updateTimer() {
+            document.getElementById('timer').textContent = `Time: ${timeLeft}s`;
+        }
+
+        function updateQuestionCounter() {
+            document.getElementById('questionCounter').textContent = `Question ${currentQuestion + 1} of ${questions.length}`;
+        }
+
+        function updateProgressBar() {
+            const progress = (currentQuestion / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function showResults() {
+            document.getElementById('questionContainer').style.display = 'none';
+            document.getElementById('results').style.display = 'block';
+            
+            const totalTime = (Date.now() - startTime) / 1000;
+            const maxScore = questions.length * 7; // 5 base + 2 max time bonus
+            const rawScore = (score / maxScore) * 100;
+            
+            // Convert to IQ scale (mean=100, SD=15)
+            const iqScore = Math.round(85 + (rawScore * 0.3));
+            
+            document.getElementById('finalScore').textContent = iqScore;
+            
+            // Interpretation
+            let interpretation = '';
+            if (iqScore >= 140) interpretation = 'Highly Gifted - Exceptional cognitive abilities';
+            else if (iqScore >= 130) interpretation = 'Gifted - Superior intellectual functioning';
+            else if (iqScore >= 120) interpretation = 'Above Average - Strong cognitive abilities';
+            else if (iqScore >= 110) interpretation = 'High Average - Good intellectual functioning';
+            else if (iqScore >= 90) interpretation = 'Average - Normal cognitive abilities';
+            else if (iqScore >= 80) interpretation = 'Low Average - Below average performance';
+            else interpretation = 'Below Average - May benefit from additional support';
+            
+            document.getElementById('interpretation').innerHTML = `
+                <h3>Score Interpretation</h3>
+                <p><strong>${interpretation}</strong></p>
+                <p>Completed in ${Math.round(totalTime)} seconds</p>
+                <p>Raw accuracy: ${Math.round((score/maxScore)*100)}%</p>
+            `;
+            
+            // Domain breakdown
+            const breakdown = document.getElementById('breakdown');
+            breakdown.innerHTML = '';
+            
+            Object.entries(domainScores).forEach(([domain, scores]) => {
+                const percentage = scores.total > 0 ? Math.round((scores.correct / scores.total) * 100) : 0;
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.innerHTML = `
+                    <h4>${domain.charAt(0).toUpperCase() + domain.slice(1)}</h4>
+                    <div class="breakdown-score">${percentage}%</div>
+                    <small>${scores.correct}/${scores.total} correct</small>
+                `;
+                breakdown.appendChild(item);
+            });
+        }
+
+        function resetTest() {
+            currentQuestion = 0;
+            score = 0;
+            answers = [];
+            domainScores = {
+                logical: { correct: 0, total: 0 },
+                mathematical: { correct: 0, total: 0 },
+                verbal: { correct: 0, total: 0 },
+                spatial: { correct: 0, total: 0 },
+                pattern: { correct: 0, total: 0 }
+            };
+            
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+    </script>
+</body>
+</html>
